@@ -25,7 +25,7 @@
 
 use super::structures::Command as InternalCommand;
 use super::{
-    macros::{help, initialize},
+    macros::help,
     has_correct_permissions,
     has_correct_roles,
     Args, CommandGroup, CommandOptions, CommandResult, HelpBehaviour, HelpOptions, OnlyIn,
@@ -529,7 +529,7 @@ pub fn create_customised_help_data<'a>(
                             .iter()
                             .any(|prefix| *prefix == searched_named_lowercase)
                     {
-                        let mut single_group =
+                        let single_group =
                             create_single_group(&cache, &group, &msg, &help_options);
 
                         if !single_group.command_names.is_empty() {
@@ -701,8 +701,6 @@ fn send_error_embed(channel_id: ChannelId, input: &str, colour: Colour) -> Resul
         m
     })
 }
-
-initialize!(_crate);
 
 /// Posts an embed showing each individual command group and its commands.
 ///

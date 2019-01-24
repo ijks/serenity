@@ -164,9 +164,7 @@ impl Configuration {
     /// use serenity::framework::StandardFramework;
     /// use serenity::client::Context;
     /// use serenity::model::channel::Message;
-    /// use serenity::framework::standard::{CommandResult, macros::{initialize, group, command}};
-    ///
-    /// initialize!(serenity);
+    /// use serenity::framework::standard::{CommandResult, macros::{group, command}};
     ///
     /// #[command]
     /// fn ping(_: &mut Context, msg: &Message) -> CommandResult {

@@ -333,10 +333,8 @@ impl From<char> for ReactionType {
     ///
     /// ```rust,no_run
     /// # use serenity::client::Context;
-    /// # use serenity::framework::standard::{CommandResult, macros::{initialize, command}};
+    /// # use serenity::framework::standard::{CommandResult, macros::command};
     /// # use serenity::model::id::ChannelId;
-    /// #
-    /// # initialize!(serenity);
     /// #
     /// # #[command]
     /// # fn example(context: &mut Context) -> CommandResult {

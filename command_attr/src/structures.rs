@@ -2,8 +2,8 @@ use crate::consts::{COMMAND, GROUP, GROUP_OPTIONS};
 use crate::util::{
     Argument, Array, AsOption, Expr, Field, IdentAccess, IdentExt2, LitExt, Object, RefOrInstance,
 };
-use crate::CRATE_NAME;
-use proc_macro2::{Span, TokenStream as TokenStream2};
+use crate::crate_name;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, ToTokens};
 use syn::{
     braced, bracketed,
@@ -25,8 +25,8 @@ pub enum OnlyIn {
 
 impl ToTokens for OnlyIn {
     fn to_tokens(&self, stream: &mut TokenStream2) {
-        let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-        let only_in_path = quote!(#crate_name::framework::standard::OnlyIn);
+        let cname = crate_name();
+        let only_in_path = quote!(#cname::framework::standard::OnlyIn);
         match self {
             OnlyIn::Dm => stream.extend(quote!(#only_in_path::Dm)),
             OnlyIn::Guild => stream.extend(quote!(#only_in_path::Guild)),
@@ -248,8 +248,8 @@ impl HelpBehaviour {
 
 impl ToTokens for HelpBehaviour {
     fn to_tokens(&self, stream: &mut TokenStream2) {
-        let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-        let help_behaviour_path = quote!(#crate_name::framework::standard::HelpBehaviour);
+        let cname = crate_name();
+        let help_behaviour_path = quote!(#cname::framework::standard::HelpBehaviour);
         match self {
             HelpBehaviour::Strike => stream.extend(quote!(#help_behaviour_path::Strike)),
             HelpBehaviour::Hide => stream.extend(quote!(#help_behaviour_path::Hide)),
@@ -475,9 +475,9 @@ impl ToTokens for GroupOptions {
             };
         }
 
-        let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-        let options_path = quote!(#crate_name::framework::standard::GroupOptions);
-        let permissions_path = quote!(#crate_name::model::permissions::Permissions);
+        let cname = crate_name();
+        let options_path = quote!(#cname::framework::standard::GroupOptions);
+        let permissions_path = quote!(#cname::model::permissions::Permissions);
 
         let required_permissions = required_permissions.0;
 
@@ -712,9 +712,9 @@ impl ToTokens for Group {
             RefOrInstance::Instance(opt) => options = Some(opt),
         }
 
-        let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-        let options_path = quote!(#crate_name::framework::standard::GroupOptions);
-        let group_path = quote!(#crate_name::framework::standard::CommandGroup);
+        let cname = crate_name();
+        let options_path = quote!(#cname::framework::standard::GroupOptions);
+        let group_path = quote!(#cname::framework::standard::CommandGroup);
 
         if options.is_some() {
             stream.extend(quote! {

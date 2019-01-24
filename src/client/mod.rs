@@ -524,10 +524,7 @@ impl Client {
     /// use serenity::framework::StandardFramework;
     /// use serenity::client::{Client, Context};
     /// use serenity::model::channel::Message;
-    /// use serenity::framework::standard::{CommandResult, macros::{initialize, group, command}};
-    ///
-    /// // The `command` and `group` macros need to have an idea where the necessary structs are.
-    /// initialize!(serenity);
+    /// use serenity::framework::standard::{CommandResult, macros::{group, command}};
     ///
     /// #[command]
     /// fn ping(_ctx: &mut Context, msg: &Message) -> CommandResult {

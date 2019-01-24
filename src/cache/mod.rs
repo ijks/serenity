@@ -749,9 +749,7 @@ impl Cache {
     ///
     /// ```rust,no_run
     /// # use serenity::client::Context;
-    /// # use serenity::framework::standard::{CommandResult, macros::{initialize, command}};
-    /// #
-    /// # initialize!(serenity);
+    /// # use serenity::framework::standard::{CommandResult, macros::command};
     /// #
     /// # #[command]
     /// # fn test(context: &mut Context) -> CommandResult {

@@ -11,10 +11,8 @@ use crate::utils::{self, VecMap};
 ///
 /// ```rust,no_run
 /// # use serenity::client::Context;
-/// # use serenity::framework::standard::{CommandResult, macros::{initialize, command}};
+/// # use serenity::framework::standard::{CommandResult, macros::command};
 /// # use serenity::model::id::{ChannelId, MessageId};
-/// #
-/// # initialize!(serenity);
 /// #
 /// # #[command]
 /// # fn example(context: &mut Context) -> CommandResult {

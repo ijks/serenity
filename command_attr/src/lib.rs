@@ -13,10 +13,8 @@ use syn::{
     parse::{Error, Parse, ParseStream, Result},
     parse_macro_input, parse_quote,
     spanned::Spanned,
-    Ident, Lit, ReturnType, Type,
+    Ident, Lit, Path, ReturnType, Type,
 };
-
-use std::cell::RefCell;
 
 pub(crate) mod attributes;
 pub(crate) mod consts;
@@ -28,23 +26,19 @@ use self::consts::*;
 use self::structures::*;
 use self::util::*;
 
-thread_local! {
-    pub(crate) static CRATE_NAME: RefCell<String> = RefCell::new(String::new());
-}
+// Stolen from <https://github.com/diesel-rs/diesel/blob/af1ff2476f997d6eb04fffd58260705d77ff6b6f/diesel_derives/src/util.rs#L81-L96>
+pub(crate) fn crate_name() -> Path {
+    let in_self = std::env::var("CARGO_PKG_NAME").unwrap() == "serenity";
+        let in_doctest = std::env::args()
+            .next()
+            .unwrap_or_default()
+            .contains("rustdoc");
 
-#[proc_macro]
-pub fn initialize(input: TokenStream) -> TokenStream {
-    let name = parse_macro_input!(input as Ident);
-    let mut name = name.to_string();
-
-    if name == "_crate" {
-        // Discard the underscore.
-        name.remove(0);
-    }
-
-    CRATE_NAME.with(|cn| cn.replace(name));
-
-    TokenStream::new()
+        if in_self && !in_doctest {
+            parse_quote!(crate)
+        } else {
+            parse_quote!(serenity)
+        }
 }
 
 fn validate_declaration(fun: &mut CommandFun, is_help: bool) -> Result<()> {
@@ -66,13 +60,13 @@ fn validate_declaration(fun: &mut CommandFun, is_help: bool) -> Result<()> {
     let options: Type = parse_quote!(&'static HelpOptions);
     let groups: Type = parse_quote!(&[&'static CommandGroup]);
 
-    let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-    let context_path: Type = parse_quote!(&mut #crate_name::prelude::Context);
-    let message_path: Type = parse_quote!(&#crate_name::model::channel::Message);
-    let args_path: Type = parse_quote!(#crate_name::framework::standard::Args);
-    let options_path: Type = parse_quote!(&'static #crate_name::framework::standard::HelpOptions);
+    let cname = crate_name();
+    let context_path: Type = parse_quote!(&mut #cname::prelude::Context);
+    let message_path: Type = parse_quote!(&#cname::model::channel::Message);
+    let args_path: Type = parse_quote!(#cname::framework::standard::Args);
+    let options_path: Type = parse_quote!(&'static #cname::framework::standard::HelpOptions);
     let groups_path: Type =
-        parse_quote!(&[&'static #crate_name::framework::standard::CommandGroup]);
+        parse_quote!(&[&'static #cname::framework::standard::CommandGroup]);
 
     let ctx_error = "first argument's type should be `&mut Context`";
     let msg_error = "second argument's type should be `&Message`";
@@ -369,7 +363,11 @@ pub fn command(attr: TokenStream, input: TokenStream) -> TokenStream {
                 for perm in p {
                     let p = match Permissions::from_str(&perm.to_string()) {
                         Some(p) => p,
-                        None => return Error::new(perm.span(), "invalid permission").to_compile_error().into(),
+                        None => {
+                            return Error::new(perm.span(), "invalid permission")
+                                .to_compile_error()
+                                .into();
+                        }
                     };
 
                     // Add them together.
@@ -439,10 +437,10 @@ pub fn command(attr: TokenStream, input: TokenStream) -> TokenStream {
     let cfgs = fun.cfgs.clone();
     let cfgs2 = cfgs.clone();
 
-    let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-    let options_path = quote!(#crate_name::framework::standard::CommandOptions);
-    let command_path = quote!(#crate_name::framework::standard::Command);
-    let permissions_path = quote!(#crate_name::model::permissions::Permissions);
+    let cname = crate_name();
+    let options_path = quote!(#cname::framework::standard::CommandOptions);
+    let command_path = quote!(#cname::framework::standard::Command);
+    let permissions_path = quote!(#cname::model::permissions::Permissions);
 
     (quote! {
         #(#cfgs)*
@@ -731,9 +729,9 @@ pub fn help(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let cfgs = fun.cfgs.clone();
     let cfgs2 = cfgs.clone();
 
-    let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-    let options_path = quote!(#crate_name::framework::standard::HelpOptions);
-    let command_path = quote!(#crate_name::framework::standard::HelpCommand);
+    let cname = crate_name();
+    let options_path = quote!(#cname::framework::standard::HelpOptions);
+    let command_path = quote!(#cname::framework::standard::HelpCommand);
 
     (quote! {
         #(#cfgs)*
@@ -802,8 +800,8 @@ pub fn group_options(input: TokenStream) -> TokenStream {
 
     let name = name.with_suffix(GROUP_OPTIONS);
 
-    let crate_name = CRATE_NAME.with(|cn| Ident::new(&cn.borrow(), Span::call_site()));
-    let options_path = quote!(#crate_name::framework::standard::GroupOptions);
+    let cname = crate_name();
+    let options_path = quote!(#cname::framework::standard::GroupOptions);
 
     (quote! {
         pub static #name: #options_path = #options;
