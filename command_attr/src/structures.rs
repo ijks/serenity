@@ -477,8 +477,8 @@ impl ToTokens for GroupOptions {
 
         let cname = crate_name();
         let options_path = quote!(#cname::framework::standard::GroupOptions);
+        let check_path = quote!(#cname::framework::standard::Check);
         let permissions_path = quote!(#cname::model::permissions::Permissions);
-
         let required_permissions = required_permissions.0;
 
         if let Some(IdentAccess(from, its)) = inherit {
@@ -547,7 +547,7 @@ impl ToTokens for GroupOptions {
             };
 
             let checks = if !checks.is_empty() {
-                quote! { checks: &[#(Check(#checks)),*], }
+                quote! { checks: &[#(#check_path(#checks)),*], }
             } else {
                 quote!()
             };
@@ -584,7 +584,7 @@ impl ToTokens for GroupOptions {
                     help_available: #help_available,
                     only: #only,
                     description: #description,
-                    checks: &[#(Check(#checks)),*],
+                    checks: &[#(#check_path(#checks)),*],
                     default_command: #dc,
                 }
             });

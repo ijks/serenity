@@ -439,13 +439,14 @@ pub fn command(attr: TokenStream, input: TokenStream) -> TokenStream {
 
     let cname = crate_name();
     let options_path = quote!(#cname::framework::standard::CommandOptions);
+    let check_path = quote!(#cname::framework::standard::Check);
     let command_path = quote!(#cname::framework::standard::Command);
     let permissions_path = quote!(#cname::model::permissions::Permissions);
 
     (quote! {
         #(#cfgs)*
         pub static #options: #options_path = #options_path {
-            checks: &[#(Check(#checks)),*],
+            checks: &[#(#check_path(#checks)),*],
             names: &[#name, #(#aliases),*],
             desc: #desc,
             usage: #usage,
