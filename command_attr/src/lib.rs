@@ -415,9 +415,8 @@ pub fn command(attr: TokenStream, input: TokenStream) -> TokenStream {
 
     let name = _name.clone();
 
-    // If name starts with numbers, prepend an underscore to make it a valid identifier.
-    let _name = if _name.starts_with(&['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as &[char])
-    {
+    // If name starts with a number, prepend an underscore to make it a valid identifier.
+    let _name = if _name.starts_with(|c: char| c.is_numeric()) {
         Ident::new(&format!("_{}", _name), Span::call_site())
     } else {
         Ident::new(&_name, Span::call_site())
