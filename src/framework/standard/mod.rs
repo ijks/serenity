@@ -229,6 +229,55 @@ impl StandardFramework {
     /// Adds a group which can organize several related commands.
     /// Groups are taken into account when using
     /// `serenity::framework::standard::help_commands`.
+    ///
+    /// # Examples
+    ///
+    /// Add a group with ping and pong commands:
+    ///
+    /// ```rust,no_run
+    /// # use serenity::prelude::*;
+    /// # use std::error::Error as StdError;
+    /// # struct Handler;
+    /// #
+    /// # impl EventHandler for Handler {}
+    /// #
+    /// use serenity::client::{Client, Context};
+    /// use serenity::model::channel::Message;
+    /// use serenity::framework::standard::{
+    ///     StandardFramework,
+    ///     CommandResult,
+    ///     macros::{command, group},
+    /// };
+    ///
+    /// // For information regarding this macro, learn more about it in its documentation in `command_attr`.
+    /// #[command]
+    /// fn ping(_ctx: &mut Context, msg: &Message) -> CommandResult {
+    ///     msg.channel_id.say("pong!")?;
+    ///
+    ///     Ok(())
+    /// }
+    ///
+    /// #[command]
+    /// fn pong(_ctx: &mut Context, msg: &Message) -> CommandResult {
+    ///     msg.channel_id.say("ping!")?;
+    ///
+    ///     Ok(())
+    /// }
+    ///
+    /// group!({
+    ///   name: "bingbong",
+    ///   options: {},
+    ///   commands: [ping, pong],
+    /// });
+    ///
+    /// # fn main() -> Result<(), Box<Error>> {
+    /// #   let mut client = Client::new("token", Handler)?;
+    /// client.with_framework(StandardFramework::new()
+    ///     // Groups' names are changed to all uppercase.
+    ///     .group(BINGBONG));
+    /// #   Ok(())
+    /// # }
+    /// ```
     pub fn group(mut self, group: &'static CommandGroup) -> Self {
         self.groups.push(group);
 
@@ -389,7 +438,9 @@ impl StandardFramework {
     /// use serenity::framework::StandardFramework;
     ///
     /// client.with_framework(StandardFramework::new()
-    ///     .unrecognised_command(|ctx, msg, unrecognised_command_name| { }));
+    ///     .unrecognised_command(|_ctx, msg, unrecognised_command_name| {
+    ///        println!("A user named {:?} tried to executute an unknown command: {}", msg.author.name, unrecognised_command_name);
+    ///     }));
     /// ```
     pub fn unrecognised_command<F>(mut self, f: F) -> Self
     where
@@ -416,7 +467,9 @@ impl StandardFramework {
     /// use serenity::framework::StandardFramework;
     ///
     /// client.with_framework(StandardFramework::new()
-    ///     .normal_message(|ctx, msg| { }));
+    ///     .normal_message(|ctx, msg| {
+    ///         println!("Received a generic message: {:?}", msg.content);
+    ///     }));
     /// ```
     pub fn normal_message<F>(mut self, f: F) -> Self
     where
@@ -429,7 +482,7 @@ impl StandardFramework {
 
     /// Sets what code should be executed when a user sends `(prefix)help`.
     ///
-    /// If a command named `help` in a group was set, then this takes precedence first.
+    /// If a [`command`] named `help` in a group was set, then this takes precedence first.
     ///
     /// [`command`]: #method.command
     pub fn help(mut self, h: &'static HelpCommand) -> Self {

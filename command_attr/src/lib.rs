@@ -266,6 +266,75 @@ fn validate_return_type(fun: &mut CommandFun) -> Result<()> {
     Ok(())
 }
 
+/// The heart of the attribute-based framework.
+///
+/// This is a function attribute, if you attempt to use this on other Rust constructs this will fail to work.
+///
+/// # Options
+///
+/// The point of this attribute is for easily configurable options,
+/// altering the way the framework will interpret the command.
+///
+/// Options are passed also as attributes. Though each have their own way of accepting input.
+///
+/// Available options, are as follows:
+///
+/// - `#[checks(idents)]`
+/// Preconditions that must be met. Executed before the command's execution.
+/// `idents` is a list of identifiers, seperated by a comma, referencing functions of the declaration:
+/// `Fn(&mut Context, &Message, &mut Args, &CommandOptions) -> bool`
+///
+/// - `#[aliases(names)]`
+/// A list of other names that can be used to execute this command.
+/// In `CommandOptions`, these are put in the `names` field, right after the command's name.
+///
+/// - `#[description(desc)]`/`#[description = desc]`
+/// A summary of the command.
+///
+/// - `#[usage(how_to)]`/`#[usage = how_to]
+/// An example of the command's usage.
+///
+/// - `#[min_args(min)]`, `#[max_args(max)]`, `#[num_args(min_and_max)]`
+/// The minimum and/or maximum amount of arguments that the command should/can receive.
+///
+/// `num_args` is a helper attribute, serving as a shorthand for calling
+/// `min_args` and `max_args` with the same number of arguments.
+///
+/// - `#[allowed_roles(roles)]`
+/// A list of strings (of role ids), seperated by a comma,
+/// stating that only members of certain roles can execute this command.
+///
+/// - `#[help_available]`/`#[help_available(bool)]`
+/// Whether this command should be displayed in the help message.
+///
+/// - `#[only(in)]`
+/// Which contexts the command can only be executed in.
+///
+/// `in` can be of "guilds" or "dms" (direct messages).
+///
+/// - `#[owners_only]`/`#[owners_only(bool)]`
+/// Whether this command is exclusive to owners.
+///
+/// - `#[owner_privilege]`/`#[owner_privilege]
+/// Whether this command has a privilege for owners (i.e certain options are ignored for them).
+///
+/// - `#[sub(commands)]`
+/// A list of command names, separated by a comma, stating the subcommands of this command.
+/// These are executed in the form: `this-command sub-command`
+///
+/// # Notes
+/// The name of the command is parsed from the applied function,
+/// or can be passed inside the `#[command]` attribute, a lá `#[command(foobar)]`.
+///
+/// This macro attribute generates static instances of `Command` and `CommandOptions`,
+/// conserving the provided options.
+///
+/// The names of the instances are all uppercased names of the command name.
+/// For example, with a name of "foo":
+/// ```rust,ignore
+/// pub static FOO_COMMAND_OPTIONS: CommandOptions = CommandOptions { ... };
+/// pub static FOO_COMMAND: Command = Command { options: FOO_COMMAND_OPTIONS, ... };
+/// ```
 #[proc_macro_attribute]
 pub fn command(attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut fun = parse_macro_input!(input as CommandFun);
@@ -779,6 +848,17 @@ pub fn group(input: TokenStream) -> TokenStream {
     group.into_token_stream().into()
 }
 
+/// Create an instance of `GroupOptions`.
+/// Useful when making default options and then deriving them for command groups.
+///
+/// ```rust,ignore
+/// use command_attr::group_options;
+///
+/// // First argument is the name of the options; second the actual options.
+/// group_options!("foobar", {
+///     description: "I'm an example group",
+/// });
+/// ```
 #[proc_macro]
 pub fn group_options(input: TokenStream) -> TokenStream {
     struct GroupOptionsName {

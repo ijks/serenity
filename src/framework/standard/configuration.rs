@@ -6,6 +6,8 @@ use std::collections::HashSet;
 
 type DynamicPrefixHook = Fn(&mut Context, &Message) -> Option<String> + Send + Sync + 'static;
 
+/// A configuration struct for deciding whether the framework
+/// should allow optional whitespace between prefixes, group prefixes and command names.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct WithWhiteSpace {
     pub prefixes: bool,
@@ -14,6 +16,7 @@ pub struct WithWhiteSpace {
 }
 
 impl Default for WithWhiteSpace {
+    /// Impose the default settings to (false, true, true).
     fn default() -> Self {
         WithWhiteSpace {
             prefixes: false,
@@ -24,8 +27,9 @@ impl Default for WithWhiteSpace {
 }
 
 impl From<bool> for WithWhiteSpace {
+    /// Impose the prefix setting.
     fn from(b: bool) -> Self {
-        // assume that they want to do this for prefixes
+        // Assume that they want to do this for prefixes
         WithWhiteSpace {
             prefixes: b,
             ..Default::default()
@@ -34,6 +38,7 @@ impl From<bool> for WithWhiteSpace {
 }
 
 impl From<(bool, bool)> for WithWhiteSpace {
+    /// Impose the prefix and group prefix settings.
     fn from((prefixes, groups): (bool, bool)) -> Self {
         WithWhiteSpace {
             prefixes,
@@ -44,6 +49,7 @@ impl From<(bool, bool)> for WithWhiteSpace {
 }
 
 impl From<(bool, bool, bool)> for WithWhiteSpace {
+    /// Impose the prefix, group prefix and command names settings.
     fn from((prefixes, groups, commands): (bool, bool, bool)) -> Self {
         WithWhiteSpace {
             prefixes,
@@ -122,26 +128,24 @@ impl Configuration {
         self
     }
 
-    /// Whether to allow whitespace being optional between a mention/prefix and
+    /// Whether to allow whitespace being optional between a prefix/group-prefix/command and
     /// a command.
     ///
-    /// **Note**: Defaults to `false`.
+    /// **Note**: Defaults to `false` (for prefixes), `true` (commands), `true` (group prefixes).
     ///
     /// # Examples
     ///
-    /// Setting this to `false` will _only_ allow this scenario to occur:
+    /// Setting `false` for prefixes will _only_ allow this scenario to occur:
     ///
     /// ```ignore
-    /// <@245571012924538880> about
     /// !about
     ///
     /// // bot processes and executes the "about" command if it exists
     /// ```
     ///
-    /// while setting this to `true` will _also_ allow this scenario to occur:
+    /// while setting it to `true` will _also_ allow this scenario to occur:
     ///
     /// ```ignore
-    /// <@245571012924538880>about
     /// ! about
     ///
     /// // bot processes and executes the "about" command if it exists
