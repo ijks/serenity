@@ -314,7 +314,13 @@ impl Args {
 
         // If there are no delimiters, then the only possible argument is the whole message.
         if delims.is_empty() && !message.is_empty() {
-            args.push(Token::new(TokenKind::Argument, 0, message.len()));
+            let kind = if message.starts_with('"') && message.ends_with('"') {
+                TokenKind::QuotedArgument
+            } else {
+                TokenKind::Argument
+            };
+
+            args.push(Token::new(kind, 0, message.len()));
         } else {
             let mut stream = StringStream::new(message);
 
@@ -544,7 +550,7 @@ impl Args {
     /// let mut args = Args::new("4 2", &[Delimiter::Single(' ')]);
     ///
     /// assert_eq!(args.parse::<u32>().unwrap(), 4);
-    /// assert_eq(args.current(), Some("4"));
+    /// assert_eq!(args.current(), Some("4"));
     /// ```
     ///
     /// [`trimmed`]: #method.trimmed

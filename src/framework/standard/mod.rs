@@ -270,11 +270,11 @@ impl StandardFramework {
     ///   commands: [ping, pong],
     /// });
     ///
-    /// # fn main() -> Result<(), Box<Error>> {
+    /// # fn main() -> Result<(), Box<StdError>> {
     /// #   let mut client = Client::new("token", Handler)?;
     /// client.with_framework(StandardFramework::new()
-    ///     // Groups' names are changed to all uppercase.
-    ///     .group(BINGBONG));
+    ///     // Groups' names are changed to all uppercase, plus appended with `_GROUP`.
+    ///     .group(&BINGBONG_GROUP));
     /// #   Ok(())
     /// # }
     /// ```
