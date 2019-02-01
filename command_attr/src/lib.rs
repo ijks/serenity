@@ -268,7 +268,7 @@ fn validate_return_type(fun: &mut CommandFun) -> Result<()> {
 
 /// The heart of the attribute-based framework.
 ///
-/// This is a function attribute, if you attempt to use this on other Rust constructs this will fail to work.
+/// This is a function attribute macro, if you attempt to use this on other Rust constructs this will fail to work.
 ///
 /// # Options
 ///
@@ -301,16 +301,16 @@ fn validate_return_type(fun: &mut CommandFun) -> Result<()> {
 /// `min_args` and `max_args` with the same number of arguments.
 ///
 /// - `#[allowed_roles(roles)]`
-/// A list of strings (of role ids), seperated by a comma,
+/// A list of strings (role names), seperated by a comma,
 /// stating that only members of certain roles can execute this command.
 ///
 /// - `#[help_available]`/`#[help_available(bool)]`
 /// Whether this command should be displayed in the help message.
 ///
-/// - `#[only(in)]`
-/// Which contexts the command can only be executed in.
+/// - `#[only_in(context)]`
+/// Which context the command can only be executed in.
 ///
-/// `in` can be of "guilds" or "dms" (direct messages).
+/// `context` can be of "guilds" or "dms" (direct messages).
 ///
 /// - `#[owners_only]`/`#[owners_only(bool)]`
 /// Whether this command is exclusive to owners.
@@ -540,6 +540,100 @@ pub fn command(attr: TokenStream, input: TokenStream) -> TokenStream {
     .into()
 }
 
+/// Just like [`command`], this is a function attribute macro for easily configurable options.
+///
+/// However, this is intended for defining the help command.
+/// An interface for simple browsing of all the available commands the bot provides,
+/// and reading through specific information regarding a command.
+///
+/// Therefore, the options here will pertain in the help command's **layout**,
+/// rather than its functionality.
+///
+/// # Options
+///
+/// - `#[suggestion_text(s)]`/`#[suggestion_text = s]`
+/// For suggesting a command's name.
+///
+/// - `#[no_help_available_text(s)]`/`#[no_help_available_text = s]`
+/// When help is unavailable for a command.
+///
+/// - `#[usage_label(s)]`/`#[usage_label = s]`
+/// How should the command be used.
+///
+/// - `#[usage_sample_label(s)]`/`#[usage_sample_label = s]`
+/// Actual sample label.
+///
+/// - `#[ungrouped_label(s)]`/`#[ungrouped_label = s]`
+/// Ungrouped commands label.
+///
+/// - `#[description_label(s)]`/`#[description_label = s]`
+/// Label at the start of the description.
+///
+/// - `#[grouped_label(s)]`/`#[grouped_label = s]`
+/// Grouped commands label.
+///
+/// - `#[aliases_label(s)]`/`#[aliases_label = s]`
+/// Label for a command's aliases.
+///
+/// - `#[guild_only_text(s)]`/`#[guild_only_text = s]`
+/// When a command is specific to guilds only.
+///
+/// - `#[dm_only_text(s)]`/`#[dm_only_text = s]`
+/// When a command is specific to dms only.
+///
+/// - `#[dm_and_guild_text(s)]`/`#[dm_guild_only_text = s]`
+/// When a command is usable in both guilds and dms.
+///
+/// - `#[available_text(s)]`/`#[available_text = s]`
+/// When a command is available.
+///
+/// - `#[command_not_found_text(s)]`/`#[command_not_found_text = s]`
+/// When a command wasn't found.
+///
+/// - `#[individual_command_tip(s)]`/`#[individual_command_tip = s]`
+/// How the user should access a command's details.
+///
+/// - `#[striked_commands_tip_in_dm]`/`#[striked_commands_tip_in_dm(s)]`/`#[striked_commands_tip_in_dm = s]`
+/// Reasoning behind strikethrough-commands.
+///
+/// If there wasn't any text passed, default text will be used instead.
+///
+/// *Only used in dms.*
+///
+/// - `#[striked_commands_tip_in_guild]`/`#[striked_commands_tip_in_guild(s)]`/`#[striked_commands_tip_in_guild = s]`
+/// Reasoning behind strikethrough-commands.
+///
+/// If there wasn't any text passed, default text will be used instead.
+///
+/// *Only used in guilds.*
+///
+/// - `#[group_prefix(s)]`/`#[group_prefix = s]`
+/// For introducing a group's prefix
+///
+/// - `#[lacking_role(s)]`/`#[lacking_role = s]`
+/// If a user lacks required roles, this will treat how commands will be displayed.
+///
+/// Accepts `strike` (strikethroughs), `hide` (will not be listed) or `nothing` (leave be).
+///
+/// - `#[lacking_permissions(s)]`/`#[lacking_role = s]`
+/// If a user lacks permissions, this will treat how commands will be displayed.
+///
+/// Accepts `strike` (strikethroughs), `hide` (will not be listed) or `nothing` (leave be).
+///
+/// - `#[embed_error_colour(n)]`
+/// Colour that the help-embed will use upon an error.
+///
+/// Value is a name to one of the provided constants of the `Colour` struct.
+///
+///- `#[embed_success_colour(n)]`
+/// Colour that the help-embed will use normally.
+///
+/// Value is a name to one of the provided constants of the `Colour` struct.
+///
+/// - `#[max_levenshtein_distance(n)]`
+/// How much should the help command search for a similiar name.
+///
+/// [`command`]: fn.command.html
 #[proc_macro_attribute]
 pub fn help(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut fun = parse_macro_input!(input as CommandFun);

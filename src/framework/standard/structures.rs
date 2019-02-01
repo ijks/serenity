@@ -24,7 +24,7 @@ impl PartialEq for Check {
 
 impl fmt::Debug for Check {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.pad("Check(<fn>)")
+        f.write_str("Check(<fn>)")
     }
 }
 
@@ -36,18 +36,32 @@ impl Clone for Check {
 
 #[derive(Debug, PartialEq)]
 pub struct CommandOptions {
+    /// A set of checks to be called prior to executing the command. The checks
+    /// will short-circuit on the first check that returns `false`.
     pub checks: &'static [Check],
+    /// Names that the command can be referred to.
     pub names: &'static [&'static str],
+    /// Command description, used by other commands.
     pub desc: Option<&'static str>,
+    /// Command usage schema, used by other commands.
     pub usage: Option<&'static str>,
+    /// Minimum amount of arguments that should be passed.
     pub min_args: Option<u8>,
+    /// Maximum amount of arguments that can be passed.
     pub max_args: Option<u8>,
+    /// Roles allowed to use this command.
     pub allowed_roles: &'static [&'static str],
+    /// Permissions required to use this command.
     pub required_permissions: Permissions,
+    /// Whether the command should be displayed in help list or not, used by other commands.
     pub help_available: bool,
+    /// Whether the command can only be used in dms or guilds; or both.
     pub only_in: OnlyIn,
+    /// Whether the command can only be used by owners or not.
     pub owners_only: bool,
+    /// Whether the command treats owners as normal users.
     pub owner_privilege: bool,
+    /// Other commands belonging to this command.
     pub sub: &'static [&'static Command],
 }
 
@@ -145,28 +159,62 @@ pub enum HelpBehaviour {
 
 #[derive(Debug, PartialEq)]
 pub struct HelpOptions {
+    /// Suggests a command's name.
     pub suggestion_text: &'static str,
+    /// If no help is available, this text will be displayed.
     pub no_help_available_text: &'static str,
+    /// How to use a command, `{usage_label}: {command_name} {args}`
     pub usage_label: &'static str,
+    /// Actual sample label, `{usage_sample_label}: {command_name} {args}`
     pub usage_sample_label: &'static str,
+    /// Text labeling ungrouped commands, `{ungrouped_label}: ...`
     pub ungrouped_label: &'static str,
+    /// Text labeling the start of the description.
     pub description_label: &'static str,
+    /// Text labeling grouped commands, `{grouped_label} {group_name}: ...`
     pub grouped_label: &'static str,
+    /// Text labeling a command's alternative names (aliases).
     pub aliases_label: &'static str,
+    /// Text specifying that a command is only usable in a guild.
     pub guild_only_text: &'static str,
+    /// Text specifying that a command is only usable in via DM.
     pub dm_only_text: &'static str,
+    /// Text specifying that a command can be used via DM and in guilds.
     pub dm_and_guild_text: &'static str,
+    /// Text expressing that a command is available.
     pub available_text: &'static str,
+    /// Error-message once a command could not be found.
+    /// Output-example (without whitespace between both substitutions: `{command_not_found_text}{command_name}`
+    /// `{command_name}` describes user's input as in: `{prefix}help {command_name}`.
     pub command_not_found_text: &'static str,
+    /// Explains the user on how to use access a single command's details.
     pub individual_command_tip: &'static str,
+    /// Explains reasoning behind strikethrough-commands, see fields requiring `HelpBehaviour` for further information.
+    /// If `HelpBehaviour::Strike` is unused, this field will evaluate to `None` during creation
+    /// inside of the help macro.
+    ///
+    /// **Note**: Text is only used in direct messages.
     pub striked_commands_tip_in_dm: Option<&'static str>,
+    /// Explains reasoning behind strikethrough-commands, see fields requiring `HelpBehaviour` for further information.
+    /// If `HelpBehaviour::Strike` is unused, this field will evaluate to `None` during creation
+    /// inside of the help macro.
+    ///
+    /// **Note**: Text is only used in guilds.
     pub striked_commands_tip_in_guild: Option<&'static str>,
+    /// Announcing a group's prefix as in: {group_prefix} {prefix}.
     pub group_prefix: &'static str,
+    /// If a user lacks required roles, this will treat how these commands will be displayed.
     pub lacking_role: HelpBehaviour,
+    /// If a user lacks permissions, this will treat how these commands will be displayed.
     pub lacking_permissions: HelpBehaviour,
+    /// If a user is using the help-command in a channel where a command is not available,
+    /// this behaviour will be executed.
     pub wrong_channel: HelpBehaviour,
+    /// Colour help-embed will use upon encountering an error.
     pub embed_error_colour: u64,
+    /// Colour help-embed will use if no error occurred.
     pub embed_success_colour: u64,
+    /// If not 0, help will check whether a command is similar to searched named.
     pub max_levenshtein_distance: usize,
 }
 
